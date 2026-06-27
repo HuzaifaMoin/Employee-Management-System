@@ -6,6 +6,7 @@ import multer from "multer";
 import connectDB from "./config/db.js";
 import employeeRoutes from "./routes/employeeRoutes.js";
 import authRouter from "./routes/authRoute.js";
+import profileRouter from "./routes/profileRoute.js";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -22,6 +23,7 @@ app.get("/", (req, res) => {
 // Employee Routes
 app.use("/api/auth", authRouter)
 app.use("/api/employees", employeeRoutes);
+app.use("/api/profile", profileRouter)
 
 
 await connectDB();
