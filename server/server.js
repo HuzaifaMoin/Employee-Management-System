@@ -5,6 +5,7 @@ import multer from "multer";
 
 import connectDB from "./config/db.js";
 import employeeRoutes from "./routes/employeeRoutes.js";
+import authRouter from "./routes/authRoute.js";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -18,9 +19,10 @@ app.use(multer().none());
 app.get("/", (req, res) => {
   res.send("Server is running");
 });
-
 // Employee Routes
+app.use("/api/auth", authRouter)
 app.use("/api/employees", employeeRoutes);
+
 
 await connectDB();
 
