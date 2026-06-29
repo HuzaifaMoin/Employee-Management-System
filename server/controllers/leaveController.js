@@ -95,53 +95,22 @@ export const getLeaves = async (req, res) => {
     }
 };
 
-// Get leaves
-// GET /api/leaves
-export const getLeaves = async (req, res) => {
+// Update leave status
+// PATCH /api/leaves/:id
+export const updateLeaveStatus = async (req, res) => {
     try {
-        const session = req.session;
-        const isAdmin = session.role === "ADMIN";
-
-        if (isAdmin) {
-            // Admin can filter by status and see leaves from all employees
-            const status = req.query.status;
-            const where = status ? { status } : {};
-
-            const leaves = await LeaveApplication.find(where)
-                .populate("employeeId")
-                .sort({ createdAt: -1 });
-
-            // Format data for the admin frontend
-            const data = leaves.map((l) => {
-                const obj = l.toObject();
-                return {
-                    ...obj,
-                    id: obj._id.toString(),
-                    employee: obj.employeeId,
-                    employeeId: obj.employeeId?._id?.toString(),
-                };
-            });
-
-            return res.json({ success: true, data });
-
-        } else {
-            // Standard employee can only see their own leave history
-            const employee = await Employee.findOne({
-                userId: session.userId,
-            }).lean();
-
-            if (!employee) return res.status(404).json({ error: "Not found" });
-
-            const leaves = await LeaveApplication.find({
-                employeeId: employee._id
-            }).sort({ createdAt: -1 });
-
-            return res.json({
-                success: true,
-                data: leaves,
-                employee: { ...employee, id: employee._id.toString() }
-            });
+        const { status } = req.body;
+        if (!["APPROVED", "REJECTED", "PENDING"].includes(status)) {
+            return res.status(400).json({ error: "Invalid status" });
         }
+
+        const leave = await LeaveApplication.findByIdAndUpdate(
+            req.params.id, 
+            { status }, 
+            { returnDocument: "after" }
+        );
+
+        return res.json({ success: true, data: leave });
     } catch (error) {
         return res.status(500).json({ error: "Failed" });
     }
