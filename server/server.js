@@ -11,6 +11,7 @@ import attendanceRouter from "./routes/attendanceRoute.js";
 import leaveRouter from "./routes/leaveRoute.js";
 import payslipRoute from "./routes/payslipRoute.js";
 import payslipRouter from "./routes/payslipRoute.js";
+import dashboardRouter from "./routes/dashboardRoute.js";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -32,7 +33,7 @@ app.use("/api/attendance", attendanceRouter)
 app.use("/api/leave", leaveRouter)
 app.use("/api/leave", leaveRouter)
 app.use("/api/payslips", payslipRouter)
-
+app.use("/api/dashboard", dashboardRouter)
 
 await connectDB();
 
