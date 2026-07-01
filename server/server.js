@@ -11,7 +11,6 @@ import authRouter from "./routes/authRoute.js";
 import profileRouter from "./routes/profileRoute.js";
 import attendanceRouter from "./routes/attendanceRoute.js";
 import leaveRouter from "./routes/leaveRoute.js";
-import payslipRoute from "./routes/payslipRoute.js";
 import payslipRouter from "./routes/payslipRoute.js";
 import dashboardRouter from "./routes/dashboardRoute.js";
 
@@ -23,16 +22,20 @@ app.use(cors());
 app.use(express.json());
 app.use(multer().none());
 
-// Routes
+app.use((req, res, next) => {
+    console.log(req.method, req.originalUrl);
+    next();
+});
+// Health check
 app.get("/", (req, res) => {
   res.send("Server is running");
 });
-// Employee Routes
+
+// API Routes
 app.use("/api/auth", authRouter)
 app.use("/api/employees", employeeRoutes);
 app.use("/api/profile", profileRouter)
 app.use("/api/attendance", attendanceRouter)
-app.use("/api/leave", leaveRouter)
 app.use("/api/leave", leaveRouter)
 app.use("/api/payslips", payslipRouter)
 app.use("/api/dashboard", dashboardRouter)

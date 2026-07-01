@@ -6,6 +6,7 @@ import Loading from '../components/Loading'
 import toast from 'react-hot-toast'
 import { form } from 'react'
 import EmployeeForm from '../components/EmployeeForm'
+import api from '../api/axios'
 
 const Employee = () => {
 
@@ -18,12 +19,16 @@ const Employee = () => {
 
 
   const fetchEmployees = useCallback(async () => {
-    setLoading(true)
-    setEmployees(dummyEmployeeData.filter((emp) => (
-      selectDept ? emp.department === selectDept : emp)))
-    setTimeout(() => {
+    try {
+      const url= selectDept ? `/employees?department=${selectDept}` :
+      "/employees";
+      const res= await api.get(url)
+      setEmployees(res.data)
+    } catch (error) {
+      console.error("Failed to fetch employees");
+    }finally{
       setLoading(false)
-    }, 1000)
+    }
   }, [selectDept])
 
   useEffect(() => {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import toast from 'react-hot-toast'
 
 const GeneratePayslipForm = ({ employees = [], onFormSubmit, onCancel }) => {
   const currentYear = new Date().getFullYear()
@@ -36,26 +37,22 @@ const GeneratePayslipForm = ({ employees = [], onFormSubmit, onCancel }) => {
 
   // Handle Submission
   const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!formData.employeeId) {
-      alert("Please select an employee")
-      return
-    }
+  e.preventDefault();
 
-    // Find full employee object to append to the structured data
-    const selectedEmp = employees.find(emp => emp.id === formData.employeeId || emp._id === formData.employeeId)
-
-    const finalizedPayslipData = {
-      ...formData,
-      basicSalary: parseFloat(formData.basicSalary) || 0,
-      allowances: parseFloat(formData.allowances) || 0,
-      deductions: parseFloat(formData.deductions) || 0,
-      netSalary: netSalary,
-      employee: selectedEmp
-    }
-
-    onFormSubmit(finalizedPayslipData)
+  if (!formData.employeeId) {
+    toast.error("Please select an employee");
+    return;
   }
+
+  onFormSubmit({
+    employeeId: formData.employeeId,
+    month: Number(formData.month),
+    year: Number(formData.year),
+    basicSalary: Number(formData.basicSalary),
+    allowances: Number(formData.allowances || 0),
+    deductions: Number(formData.deductions || 0),
+  });
+};
 
   // Helper arrays for date selection
   const months = [

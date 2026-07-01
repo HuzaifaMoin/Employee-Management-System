@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { DEPARTMENTS } from '../assets/assets';
+import { Loader2Icon } from 'lucide-react';
+import toast from 'react-hot-toast';
+import api from '../api/axios'
+
 
 const EmployeeForm = ({ initialData, onSuccess, onCancel }) => {
     const [formData, setFormData] = useState({
@@ -9,14 +13,14 @@ const EmployeeForm = ({ initialData, onSuccess, onCancel }) => {
         email: '',
         phone: '',
         department: '',
-        designation: '',
+        position: '',
         bio: '',
-        joiningDate: '',
+        joinDate: '',
         basicSalary: 0,
         allowances: 0,
         deductions: 0,
-        employmentStatus: 'Active',
-        role: 'Employee'
+        employmentStatus: 'ACTIVE',
+        role: 'EMPLOYEE'
     });
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
@@ -27,7 +31,7 @@ const EmployeeForm = ({ initialData, onSuccess, onCancel }) => {
         if (initialData) {
             setFormData({
                 ...initialData,
-                joiningDate: initialData.joinDate
+                joinDate: initialData.joinDate
                     ? new Date(initialData.joinDate).toISOString().split("T")[0]
                     : "",
             });
@@ -38,14 +42,14 @@ const EmployeeForm = ({ initialData, onSuccess, onCancel }) => {
                 email: '',
                 phone: '',
                 department: '',
-                designation: '',
+                position: '',
                 bio: '',
-                joiningDate: '',
+                joinDate: '',
                 basicSalary: 0,
                 allowances: 0,
                 deductions: 0,
-                employmentStatus: 'Active',
-                role: 'Employee'
+                employmentStatus: 'ACTIVE',
+                role: 'EMPLOYEE'
             });
         }
     }, [initialData]);
@@ -60,9 +64,24 @@ const EmployeeForm = ({ initialData, onSuccess, onCancel }) => {
         }));
     };
 
-    const handleFormSubmit = (e) => {
+    const handleFormSubmit = async (e) => {
         e.preventDefault();
-        onSuccess(formData);
+        setLoading(true)
+        const formData = new FormData(e.currentTarget)
+        if(isEditMode){
+            const pwd = formData.get("password")
+            if(!pwd) formData.delete("password")
+        }
+        try {
+            const url = isEditMode ? `/employees/${initialData.id}` : "/employees";
+            const method = isEditMode ? "put" : "post";
+            await api[method](url, formData)
+            onSuccess ? onSuccess() : navigate("/employee")
+        } catch (error) {
+           toast.error(error.response?.data?.error || error.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -147,14 +166,14 @@ const EmployeeForm = ({ initialData, onSuccess, onCancel }) => {
                     </select>
                 </div>
 
-                {/* Designation */}
+                {/* Position */}
                 <div>
                     <label className="block mb-2 font-medium text-gray-700">Designation</label>
                     <input
                         type="text"
-                        name="designation"
+                        name="position"
                         required
-                        value={formData.designation || ''}
+                        value={formData.position || ''}
                         onChange={handleChange}
                         className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Software Engineer"
@@ -178,9 +197,9 @@ const EmployeeForm = ({ initialData, onSuccess, onCancel }) => {
                     <label className="block mb-2 font-medium text-gray-700">Joining Date</label>
                     <input
                         type="date"
-                        name="joiningDate"
+                        name="joinDate"
                         required
-                        value={formData.joiningDate || ''}
+                        value={formData.joinDate || ''}
                         onChange={handleChange}
                         className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
@@ -282,12 +301,12 @@ const EmployeeForm = ({ initialData, onSuccess, onCancel }) => {
 
                             <select
                                 name="role"
-                                value={formData.role || "Employee"}
+                                value={formData.role || "EMPLOYEE"}
                                 onChange={handleChange}
                                 className="w-full border border-gray-300 p-2 rounded-md"
                             >
-                                <option value="Employee">Employee</option>
-                                <option value="Admin">Admin</option>
+                                <option value="EMPLOYEE">Employee</option>
+                                <option value="ADMIN">Admin</option>
                             </select>
                         </div>
                     </div>

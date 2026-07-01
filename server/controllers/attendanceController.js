@@ -34,8 +34,8 @@ export const clockInOut = async (req, res) => {
             await inngest.send({
                 name: "employee/check-out",
                 data: {
-                    employeeId: employee_id,
-                    attendanceId: attendance_id, 
+                    employeeId: employee._id.toString(),
+                    attendanceId: attendance._id.toString(),
                 }
             })
 

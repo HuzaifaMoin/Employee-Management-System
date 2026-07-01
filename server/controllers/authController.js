@@ -6,16 +6,18 @@ import jwt from 'jsonwebtoken'
 // POST /api/auth/login
 export const login = async (req, res) => {
     try {
-        const {email, password} = req.body;
+        const { email, password, role_type } = req.body;
 
         if(!email || !password){
             return res.status(400).json({ error: "Email and password are required" });
         }
-
+        if(!role_type) {
+            return res.status(400).json({ error: "Role type is required" });
+        }
         const user = await User.findOne({email})
         if(!user) {
             return res.status(401).json({ error: "Invalid credentials" });
-    }
+        }
 
     if(role_type === "admin" && user.role !== "ADMIN"){
         return res.status(401).json({ error: "Not authorized as admin" });
@@ -59,18 +61,20 @@ export const changePassword = async (req, res) => {
     try {
         const session = req.session;
         const { currentPassword, newPassword } = req.body;
-        if(!currentPassword || !newPassword){
+
+        if (!currentPassword || !newPassword) {
             return res.status(400).json({ error: "Both passwords are required" });
         }
-        const user = await User.findById(session.userId)
-        if(!user) return res.status(404).json({ error: "User not found" });
-        
+
+        const user = await User.findById(session.userId);
+        if (!user) return res.status(404).json({ error: "User not found" });
+
         const isValid = await bcrypt.compare(currentPassword, user.password);
-        if(!isValid) return res.status(400).json({ error: "Current password is incorrect" });
-        
+        if (!isValid) return res.status(400).json({ error: "Current password is incorrect" });
+
         const hashed = await bcrypt.hash(newPassword, 10);
-        await User.findByIdAndUpdate(session.userId, {password: hashed})
-        
+        await User.findByIdAndUpdate(session.userId, { password: hashed });
+
         return res.json({ success: true });
 
     } catch (error) {

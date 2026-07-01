@@ -4,8 +4,11 @@ import { createLeave, getLeaves, updateLeaveStatus } from "../controllers/leaveC
 
 const leaveRouter = Router();
 
-leaveRouter.post('/', protect, createLeave )
+leaveRouter.post("/", (req, res, next) => {
+    console.log("POST /api/leave reached");
+    next();
+}, protect, createLeave);
 leaveRouter.get('/', protect, getLeaves)
-leaveRouter.patch('/', protect, protectAdmin, updateLeaveStatus)
+leaveRouter.patch('/:id', protect, protectAdmin, updateLeaveStatus)
 
 export default leaveRouter;

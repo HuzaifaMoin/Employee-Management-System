@@ -7,9 +7,20 @@ import LeaveApplication from "../models/LeaveApplication.js";
 export const createLeave = async (req, res) => {
     try {
         const session = req.session;
+
+        if (session.role === "ADMIN") {
+            return res.status(403).json({
+                error: "Admins cannot apply for leave."
+            });
+        }
+
         const employee = await Employee.findOne({ userId: session.userId });
 
-        if (!employee) return res.status(404).json({ error: "Employee not found" });
+        if (!employee) {
+            return res.status(404).json({
+                error: "Employee profile not found."
+            });
+        }
 
         if (employee.isDeleted) {
             return res.status(403).json({
@@ -43,16 +54,20 @@ export const createLeave = async (req, res) => {
         await inngest.send({
             name: "leave/pending",
             data: {
-                LeaveApplicationId: leave_id,
+                LeaveApplicationId: leave.id,
             }
         })
 
         return res.json({ success: true, data: leave })
 
     } catch (error) {
-        return res.status(500).json({ error: "Failed" });
-    }
-};
+    console.error(error);
+
+    return res.status(500).json({
+        error: error.message
+    });
+}
+}
 // Get leaves
 // GET /api/leaves
 export const getLeaves = async (req, res) => {
@@ -79,7 +94,12 @@ export const getLeaves = async (req, res) => {
             return res.status(200).json({ success: true, data });
         } else {
             const employee = await Employee.findOne({ userId: session.userId });
-            if (!employee) return res.status(404).json({ error: "Employee not found" });
+
+            if (!employee) {
+                return res.status(404).json({
+                    error: "Employee profile not found."
+                });
+            }
 
             const leaves = await LeaveApplication.find({ employeeId: employee._id })
                 .populate("employeeId")

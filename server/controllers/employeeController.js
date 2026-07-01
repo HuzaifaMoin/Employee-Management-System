@@ -116,111 +116,110 @@ export const createEmployee = async (req, res) => {
         return res.status(201).json(result);
 
     } catch (error) {
-    console.error(error);
+        console.error(error);
 
-    if (error.code === 11000) {
-        return res.status(400).json({
-            error: "Employee or email already exists"
+        if (error.code === 11000) {
+            return res.status(400).json({
+                error: "Employee or email already exists"
+            });
+        }
+
+        return res.status(500).json({
+            error: "Failed to create employee"
         });
     }
-
-    return res.status(500).json({
-        error: "Failed to create employee"
-    });
-}
 }
 
 //update Employee
 // PUT /api/employees/:id
 export const updateEmployee = async (req, res) => {
-  try {
-    const { id } = req.params;
+    try {
+        const { id } = req.params;
 
-    const employee = await Employee.findById(id);
+        const employee = await Employee.findById(id);
 
-    if (!employee) {
-      return res.status(404).json({
-        error: "Employee not found",
-      });
-    }
+        if (!employee) {
+            return res.status(404).json({
+                error: "Employee profile not found."
+            });
+        }
+        const {
+            firstName,
+            lastName,
+            email,
+            password,
+            role,
+            phone,
+            position,
+            basicSalary,
+            allowances,
+            deductions,
+            joinDate,
+            bio,
+            department,
+            employmentStatus,
+        } = req.body;
 
-    const {
-      firstName,
-      lastName,
-      email,
-      password,
-      role,
-      phone,
-      position,
-      basicSalary,
-      allowances,
-      deductions,
-      joinDate,
-      bio,
-      department,
-      employmentStatus,
-    } = req.body;
+        // Update Employee
+        employee.firstName = firstName ?? employee.firstName;
+        employee.lastName = lastName ?? employee.lastName;
+        employee.email = email ?? employee.email;
+        employee.phone = phone ?? employee.phone;
+        employee.position = position ?? employee.position;
+        employee.basicSalary = basicSalary ?? employee.basicSalary;
+        employee.allowances = allowances ?? employee.allowances;
+        employee.deductions = deductions ?? employee.deductions;
+        employee.joinDate = joinDate ?? employee.joinDate;
+        employee.bio = bio ?? employee.bio;
+        employee.department = department ?? employee.department;
+        employee.employmentStatus =
+            employmentStatus ?? employee.employmentStatus;
 
-    // Update Employee
-    employee.firstName = firstName ?? employee.firstName;
-    employee.lastName = lastName ?? employee.lastName;
-    employee.email = email ?? employee.email;
-    employee.phone = phone ?? employee.phone;
-    employee.position = position ?? employee.position;
-    employee.basicSalary = basicSalary ?? employee.basicSalary;
-    employee.allowances = allowances ?? employee.allowances;
-    employee.deductions = deductions ?? employee.deductions;
-    employee.joinDate = joinDate ?? employee.joinDate;
-    employee.bio = bio ?? employee.bio;
-    employee.department = department ?? employee.department;
-    employee.employmentStatus =
-      employmentStatus ?? employee.employmentStatus;
+        await employee.save();
 
-    await employee.save();
+        // Update User
+        if (employee.userId) {
+            const user = await User.findById(employee.userId);
 
-    // Update User
-    if (employee.userId) {
-      const user = await User.findById(employee.userId);
+            if (user) {
+                if (email) user.email = email;
+                if (role) user.role = role;
 
-      if (user) {
-        if (email) user.email = email;
-        if (role) user.role = role;
+                if (password) {
+                    user.password = await bcrypt.hash(password, 10);
+                }
 
-        if (password) {
-          user.password = await bcrypt.hash(password, 10);
+                await user.save();
+            }
         }
 
-        await user.save();
-      }
+        const updatedEmployee = await Employee.findById(id)
+            .populate("userId", "email role")
+            .lean();
+
+        return res.json({
+            ...updatedEmployee,
+            id: updatedEmployee._id.toString(),
+            user: updatedEmployee.userId
+                ? {
+                    email: updatedEmployee.userId.email,
+                    role: updatedEmployee.userId.role,
+                }
+                : null,
+        });
+    } catch (error) {
+        console.error(error);
+
+        if (error.code === 11000) {
+            return res.status(400).json({
+                error: "Email already exists",
+            });
+        }
+
+        return res.status(500).json({
+            error: "Failed to update employee",
+        });
     }
-
-    const updatedEmployee = await Employee.findById(id)
-      .populate("userId", "email role")
-      .lean();
-
-    return res.json({
-      ...updatedEmployee,
-      id: updatedEmployee._id.toString(),
-      user: updatedEmployee.userId
-        ? {
-            email: updatedEmployee.userId.email,
-            role: updatedEmployee.userId.role,
-          }
-        : null,
-    });
-  } catch (error) {
-    console.error(error);
-
-    if (error.code === 11000) {
-      return res.status(400).json({
-        error: "Email already exists",
-      });
-    }
-
-    return res.status(500).json({
-      error: "Failed to update employee",
-    });
-  }
 };
 
 //delete Employee
@@ -233,7 +232,7 @@ export const deleteEmployee = async (req, res) => {
 
         if (!employee) {
             return res.status(404).json({
-                error: "Employee not found"
+                error: "Employee profile not found."
             });
         }
 
@@ -253,4 +252,4 @@ export const deleteEmployee = async (req, res) => {
         });
     }
 }
-;
+    ;

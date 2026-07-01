@@ -4,19 +4,28 @@ import Loading from '../components/Loading'
 import PayslipList from '../components/payslip/PayslipList'
 import GeneratePayslipForm from '../components/payslip/GeneratePayslipForm' // Import the new form
 import { PlusIcon } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
+import api from '../api/axios'
+import toast from 'react-hot-toast'
 
 const Payslips = () => {
+  const { user } = useAuth()
   const [payslips, setPaySlips] = useState([])
   const [employees, setEmployees] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false) // Toggle view state
-  const isAdmin = true
+  const isAdmin = user?.role === "ADMIN";
 
   const fetchPaySlips = useCallback(async () => {
-    setPaySlips(dummyPayslipData)
-    setTimeout(() => {
+     try {
+      const res = await api.get('/payslips')
+      setPaySlips(res.data.data || [])
+      
+     } catch (err) {
+      toast.error(err?.response?.data?.error || err?.message)
+     } finally {
       setLoading(false)
-    }, 1000)
+     }
   }, [])
 
   useEffect(() => {
@@ -24,21 +33,25 @@ const Payslips = () => {
   }, [fetchPaySlips])
 
   useEffect(() => {
-    if (isAdmin) setEmployees(dummyEmployeeData)
+    if (isAdmin) api.get('/employees').then((res)=> 
+      setEmployees(res.data.filter((e)=>!e.isDeleted))).catch(
+        ()=>{})
   }, [isAdmin])
 
   // Handle addition of freshly built records 
-  const handleAddNewPayslip = (newPayslip) => {
-    // Generate a mock unique id
-    const mockCreatedRecord = {
-      ...newPayslip,
-      id: `pay_${Date.now()}`
-    }
+ const handleAddNewPayslip = async (newPayslip) => {
+  try {
+    const res = await api.post("/payslips", newPayslip);
 
-    // Append to dashboard record state and hide form
-    setPaySlips((prev) => [mockCreatedRecord, ...prev])
-    setShowForm(false)
+    toast.success("Payslip created successfully");
+
+    setPaySlips((prev) => [res.data.data, ...prev]);
+
+    setShowForm(false);
+  } catch (err) {
+    toast.error(err.response?.data?.error || err.message);
   }
+};
 
   if (loading) return <Loading />
 

@@ -1,11 +1,48 @@
 import React, { useState } from 'react'
 import { Loader2Icon, LockIcon, X } from 'lucide-react'
+import api from '../api/axios'
+
 const ChangePasswordModal = ({ open, onClose }) => {
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState({ type: "", text: "" })
+    const [currentPassword, setCurrentPassword] = useState("")
+    const [newPassword, setNewPassword] = useState("")
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true)
+        setMessage({ type: "", text: "" })
+
+        try {
+            const token = localStorage.getItem("token")
+            const { data } = await api.post(
+                '/auth/change-password',
+                { currentPassword, newPassword },
+                {
+                    headers: {
+                        Authorization: token ? `Bearer ${token}` : undefined,
+                    },
+                }
+            )
+
+            if (!data.success) throw new Error(data.error || "Failed")
+
+            setMessage({
+                type: "success",
+                text: "Password updated successfully",
+            });
+
+            setCurrentPassword("")
+            setNewPassword("")
+
+            setTimeout(() => {
+                onClose();
+            }, 1500);
+        } catch (err) {
+            setMessage({ type: "error", text: err?.response?.data?.error || err?.message || "Unable to update password" })
+        } finally {
+            setLoading(false)
+        }
     }
 
     if (!open) return null;
@@ -34,19 +71,19 @@ const ChangePasswordModal = ({ open, onClose }) => {
                         <div>
                             <label className="block text-sm font-medium text-slate-700
         mb-2">Current Password</label>
-                            <input type="password" name="currentPassword" required />
+                            <input type="password" name="currentPassword" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-slate-700
         mb-2">New Password</label>
-                            <input type="password" name="newPassword" required />
+                            <input type="password" name="newPassword" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
                         </div>
                         <div className='flex gap-3 pt-2'>
                             <button type="button" onClick={onClose} className='btn-secondary flex-1'>
                                 Cancel
                             </button>
-                              <button type="submit" disabled={loading} className='btn-primary flex-1 flex justify-center items-center gap-2'>
-                                {loading && <Loader2Icon className='w-4 h-4 animate-spin'/>}
+                            <button type="submit" disabled={loading} className='btn-primary flex-1 flex justify-center items-center gap-2'>
+                                {loading && <Loader2Icon className='w-4 h-4 animate-spin' />}
                                 Update Password
                             </button>
                         </div>
