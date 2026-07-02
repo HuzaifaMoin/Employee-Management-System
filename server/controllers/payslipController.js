@@ -64,9 +64,17 @@ export const getPayslips = async (req, res) => {
 // GET /api/payslips/:id
 export const getPayslipById = async (req, res) => {
     try {
+        const session = req.session;
         const payslip = await PaySlip.findById(req.params.id).populate("employeeId").lean();
 
-        if(!payslip) return res.status(404).json({ error: "Not found" });
+        if (!payslip) return res.status(404).json({ error: "Not found" });
+
+        if (session.role !== "ADMIN") {
+            const employee = await Employee.findOne({ userId: session.userId });
+            if (!employee || payslip.employeeId?._id?.toString() !== employee._id.toString()) {
+                return res.status(403).json({ error: "Forbidden" });
+            }
+        }
 
         const result = {
             ...payslip,
