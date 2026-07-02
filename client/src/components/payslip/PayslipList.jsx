@@ -43,14 +43,14 @@ const PayslipList = ({payslips, isAdmin}) => {
                                             ${payslip.netSalary?.toLocaleString()}
                                         </td>
                                         <td className='text-center'>
-                                            <button onClick={() => {
-                                                window.open(`/print/payslip/${payslip._id || payslip.id}`)}}
-                                                className='inline-flex items-center
-                                        px-3 py-1.5 text-xs font-medium rounded
-                                        text-blue-600 bg-blue-50 hover:bg-blue-100
-                                        transition-colors ring-1 ring-blue-600/10'>
-                                                <Download />Download 
-                                            </button>
+                                            <a
+                                                href={`${window.location.origin}/print/payslip/${payslip._id || payslip.id}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className='inline-flex items-center px-3 py-1.5 text-xs font-medium rounded text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors ring-1 ring-blue-600/10'
+                                            >
+                                                <Download />Download
+                                            </a>
                                         </td>
                                     </tr>
                                 )

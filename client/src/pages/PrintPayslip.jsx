@@ -10,6 +10,7 @@ const PrintPayslip = () => {
   const { id } = useParams();
   const [payslip, setPayslip] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
  const period =
   payslip?.month && payslip?.year
@@ -22,14 +23,19 @@ const PrintPayslip = () => {
  useEffect(() => {
   api.get(`/payslips/${id}`)
     .then((res) => setPayslip(res.data.data))
-    .catch(console.error)
+    .catch((err) => {
+      console.error(err)
+      setError(err.response?.data?.error || "Unable to load payslip")
+    })
     .finally(() => setLoading(false));
 }, [id]);
 
   if (loading) return <Loading />
+  if (error) return <p className='text-center py-12 text-red-500'>{error}</p>
   if (!payslip) return <p className='text-center py-12 text-slate-400'>Payslip not found</p>
 
   return (
+
     <div className="max-w-2xl mx-auto p-8 bg-white animate-fade-in">
       <div className="text-center border-b border-slate-200 pb-6 mb-8">
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">PAYSLIP</h1>
@@ -89,5 +95,4 @@ const PrintPayslip = () => {
     </div>
   )
 }
-
 export default PrintPayslip
