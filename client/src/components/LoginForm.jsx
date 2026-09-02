@@ -1,12 +1,12 @@
 import React from 'react'
 import LoginLeftSide from './LoginLeftSide'
-import { ArrowLeftIcon, EyeIcon, EyeOffIcon } from 'lucide-react'
+import { ArrowLeftIcon, EyeIcon, EyeOffIcon, Lock, User, AlertCircle } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../context/AuthContext';
 
-   const LoginForm = ({role, title, subtitle}) => {
+   const LoginForm = ({role, title, subtitle, demoCredentials, employeeInfo}) => {
 
     const [email, SetEmail] = useState("")
     const [password, SetPassword] = useState("")
@@ -34,7 +34,7 @@ import { useAuth } from '../context/AuthContext';
     return (
    <div className="min-h-screen flex flex-col md:flex-row">
             <LoginLeftSide />
-            <div className='flex-1 flex items-center justify-center p-6 sm:p-12 bg-white'>
+            <div className='flex-1 flex items-center justify-center p-6 sm:p-12 bg-white overflow-y-auto'>
             <div className="w-full max-w-md animate-fade-in">
           <Link to='/login' className='inline-flex items-center 
         gap-2 text-slate-400 hover:text-slate-700 text-sm mb-10 
@@ -48,6 +48,66 @@ import { useAuth } from '../context/AuthContext';
           <p className='text-slate-500 text-sm sm:text-base 
             mt-2'>{subtitle}</p>
       </div>
+
+      {/* Demo Credentials Section for Admin */}
+      {demoCredentials && (
+        <div className="mb-6 p-4 rounded-lg border-2 border-amber-200 bg-amber-50">
+          <div className="flex items-center gap-2 mb-3">
+            <Lock size={18} className="text-amber-700" />
+            <h2 className="font-semibold text-amber-900 text-sm">Demo Admin Credentials</h2>
+          </div>
+          <div className="space-y-2 text-sm">
+            <div className="flex items-start gap-3">
+              <User size={16} className="text-amber-700 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-xs text-amber-700 font-medium">Email</p>
+                <p className="text-amber-900 font-mono select-all">{demoCredentials.email}</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <Lock size={16} className="text-amber-700 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-xs text-amber-700 font-medium">Password</p>
+                <p className="text-amber-900 font-mono select-all">{demoCredentials.password}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Employee Account Information Section */}
+      {employeeInfo && (
+        <div className="mb-6 p-4 rounded-lg border-2 border-blue-200 bg-blue-50">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertCircle size={18} className="text-blue-700" />
+            <h2 className="font-semibold text-blue-900 text-sm">How Employee Accounts Work</h2>
+          </div>
+          <div className="space-y-2 text-sm text-blue-900">
+            <p className="text-xs leading-relaxed">
+              <span className="font-medium">Employee accounts are created by the Admin.</span> Once an Admin creates an employee account, you can log in using the email address and password provided by the Admin.
+            </p>
+            <ul className="text-xs space-y-1 ml-3">
+              <li className="flex gap-2">
+                <span className="text-blue-700 font-bold">•</span>
+                <span><span className="font-medium">Employees cannot</span> create their own accounts</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-blue-700 font-bold">•</span>
+                <span>The <span className="font-medium">Admin creates</span> employee accounts</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-blue-700 font-bold">•</span>
+                <span>The <span className="font-medium">Admin provides</span> your login email and password</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-blue-700 font-bold">•</span>
+                <span>Use those credentials to access the Employee Portal</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      )}
+
       {error && ( 
         <div> 
           <p className="text-red-500 text-sm">{error}</p>

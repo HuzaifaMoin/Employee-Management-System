@@ -13,17 +13,30 @@ import PayslipPrint from './pages/PrintPayslip'
 import LoginForm from './components/LoginForm'
 
 const App = () => {
+  const adminCredentials = {
+    email: "huzaifa123@example.com",
+    password: "admin1234"
+  }
+
+  const employeeAccountInfo = true;
+
   return (
    <>
      <Toaster />
      <Routes>
       <Route path='/login' element={<LoginLanding />} />
-      <Route path='/login/admin' element={<LoginForm role="admin" 
-      title="Admin Portal" 
-      subtitle="Sign in to your admin account" />} />
-      <Route path='/login/employee' element={<LoginForm role="employee" 
-      title="Employee Portal" 
-      subtitle="Sign in to your employee account" />} />
+      <Route path='/login/admin' element={<LoginForm 
+        role="admin" 
+        title="Admin Portal" 
+        subtitle="Sign in to your admin account"
+        demoCredentials={adminCredentials}
+      />} />
+      <Route path='/login/employee' element={<LoginForm 
+        role="employee" 
+        title="Employee Portal" 
+        subtitle="Sign in to your employee account"
+        employeeInfo={employeeAccountInfo}
+      />} />
       <Route element={<Layout />} >
         <Route path='/dashboard' element={<Dashboard />} />
         <Route path='/employee' element={<Employee />} />
