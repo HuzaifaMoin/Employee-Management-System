@@ -79,7 +79,7 @@ const leaveApplicationReminder = inngest.createFunction(
         const { leaveApplicationId } = event.data;
 
         // wait for 24 hours
-        await step.sleepUntil("wait-for-24-hours", new Date(new Date().getTime() + 24 + 60 * 60 * 1000))
+        await step.sleepUntil("wait-for-24-hours", new Date(new Date().getTime() + 24 * 60 * 60 * 1000))
 
         const leaveApplication = await LeaveApplication.findById(leaveApplicationId)
         if (leaveApplication?.status === "PENDING") {
