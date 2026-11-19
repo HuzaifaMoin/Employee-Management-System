@@ -88,6 +88,8 @@ export const getLeaves = async (req, res) => {
                 return {
                     ...obj,
                     id: obj._id.toString(),
+                    // The client reads leave.employee (same shape as payslips).
+                    employee: obj.employeeId,
                 };
             });
 
@@ -110,6 +112,8 @@ export const getLeaves = async (req, res) => {
                 return {
                     ...obj,
                     id: obj._id.toString(),
+                    // The client reads leave.employee (same shape as payslips).
+                    employee: obj.employeeId,
                     employee: obj.employeeId,
                     employeeId: obj.employeeId?._id?.toString(),
                 };
